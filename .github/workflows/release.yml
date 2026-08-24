@@ -50,8 +50,12 @@ jobs:
         id: notes
         run: |
           version="${{ steps.tags.outputs.version }}"
-          awk -v v="$version" '
-            $0 ~ "^## \[" v "\]" { on = 1; next }
+          # Matched as a literal prefix, not as a pattern: a version
+          # number is full of dots and brackets, and building a regex out
+          # of one turns [0.1.0] into a character class that matches
+          # nothing useful.
+          awk -v h="## [$version]" '
+            index($0, h) == 1 { on = 1; next }
             on && /^## \[/ { exit }
             on { print }
           ' CHANGELOG.md > release-notes.md

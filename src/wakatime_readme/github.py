@@ -37,8 +37,8 @@ class Profile:
     """The public face of an account.
 
     Example:
-        >>> Profile('mmaachado', 'Marcelo', 27, 20, 1).followers
-        27
+        >>> Profile('octocat', 'The Octocat', 42, 8, 3).followers
+        42
     """
 
     login: str
@@ -53,8 +53,8 @@ class Repository:
     """One repository, reduced to what a README might want to show.
 
     Example:
-        >>> Repository('sycp', 'mmaachado/sycp', 29, fork=False).stars
-        29
+        >>> Repository('dotfiles', 'octocat/dotfiles', 3, fork=False).stars
+        3
     """
 
     name: str
@@ -106,8 +106,8 @@ class GitHubClient:
     bot instead of the person whose README this is.
 
     Example:
-        >>> GitHubClient('', 'mmaachado').username
-        'mmaachado'
+        >>> GitHubClient('', 'octocat').username
+        'octocat'
     """
 
     def __init__(

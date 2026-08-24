@@ -136,11 +136,11 @@ def test_a_file_of_github_metrics_needs_no_wakatime_key(
     path = readme(tmp_path, 'followers: <!--wr:gh_followers-->0<!--/wr-->\n')
     transport(ok(gh_user))
 
-    result = run(['--readme', str(path), '--username', 'mmaachado'], {})
+    result = run(['--readme', str(path), '--username', 'octocat'], {})
 
     assert result.code == 0
     # The markers stay put; only the value between them is replaced.
-    assert '<!--wr:gh_followers-->27<!--/wr-->' in path.read_text(
+    assert '<!--wr:gh_followers-->42<!--/wr-->' in path.read_text(
         encoding='utf-8'
     )
 

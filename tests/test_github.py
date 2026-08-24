@@ -19,12 +19,12 @@ from wakatime_readme.http import HttpError
 Install = Callable[..., FakeTransport]
 
 TOKEN = 'ghs_secret-token-value'  # noqa: S105 - a fake, for asserting it never leaks
-REPO = 'mmaachado/mmaachado'
+REPO = 'octocat/octocat'
 
 
 def client(token: str = TOKEN) -> GitHubClient:
     """Build a client for the account the fixtures were captured from."""
-    return GitHubClient(token, 'mmaachado')
+    return GitHubClient(token, 'octocat')
 
 
 def contents(text: str, sha: str = 'blob-sha') -> Payload:
@@ -38,10 +38,10 @@ def test_parses_the_real_profile(transport: Install, gh_user: Payload) -> None:
 
     profile = client().profile()
 
-    assert profile.login == 'mmaachado'
-    assert profile.followers == 27
-    assert profile.public_repos == 20
-    assert profile.public_gists == 1
+    assert profile.login == 'octocat'
+    assert profile.followers == 42
+    assert profile.public_repos == 8
+    assert profile.public_gists == 3
 
 
 def test_orders_repositories_by_stars(
@@ -51,8 +51,8 @@ def test_orders_repositories_by_stars(
 
     repositories = client().repositories()
 
-    assert repositories[0].name == 'sycp'
-    assert repositories[0].stars == 29
+    assert repositories[0].name == 'hello-world'
+    assert repositories[0].stars == 12
 
 
 def test_total_stars_across_the_account(
@@ -62,7 +62,7 @@ def test_total_stars_across_the_account(
 
     total = sum(repo.stars for repo in client().repositories())
 
-    assert total == 31
+    assert total == 22
 
 
 def test_profile_is_fetched_only_once(
@@ -99,14 +99,14 @@ def test_pagination_continues_past_a_full_page(
     repositories = client().repositories()
 
     assert fake.call_count == 2
-    assert len(repositories) == 120
+    assert len(repositories) == 104
     assert 'page=2' in fake.calls[1][1]
 
 
 def test_pagination_stops_on_a_short_page(
     transport: Install, gh_repos: Listing
 ) -> None:
-    # 20 repositories is less than a full page, so one request is enough.
+    # Four repositories is less than a full page, so one request does it.
     fake = transport(ok(gh_repos))
 
     client().repositories()
@@ -118,9 +118,9 @@ def test_missing_release_is_reported_as_a_lookup(transport: Install) -> None:
     transport(ok({'message': 'Not Found'}, status=404))
 
     with pytest.raises(LookupError) as caught:
-        client().latest_release('mmaachado/sycp')
+        client().latest_release('octocat/hello-world')
 
-    assert 'mmaachado/sycp' in str(caught.value)
+    assert 'octocat/hello-world' in str(caught.value)
 
 
 def test_reads_a_file_and_keeps_its_sha(transport: Install) -> None:

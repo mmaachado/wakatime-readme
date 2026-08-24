@@ -7,16 +7,16 @@ from wakatime_readme.github import Profile, Repository
 from wakatime_readme.wakatime import Language, Stats
 
 SAMPLE_LANGUAGES = (
-    Language('Python', 3212992.0, 46.27, '892 hrs 29 mins'),
-    Language('Markdown', 2459788.0, 35.42, '683 hrs 16 mins'),
-    Language('HTML', 215602.0, 3.10, '59 hrs 53 mins'),
+    Language('Python', 3_100_000.0, 57.41, '861 hrs 6 mins'),
+    Language('Markdown', 1_200_000.0, 22.22, '333 hrs 20 mins'),
+    Language('HTML', 600_000.0, 11.11, '166 hrs 40 mins'),
 )
 
 SAMPLE_STATS = Stats(
-    total_seconds=6850967.0,
-    daily_average=8750.0,
+    total_seconds=5_400_000.0,
+    daily_average=7200.0,
     start=None,
-    human_range='since Mar 30 2023',
+    human_range='since Jan 01 2020',
     languages=SAMPLE_LANGUAGES,
 )
 
@@ -43,13 +43,11 @@ class StubGitHub:
         repositories: tuple[Repository, ...] = (),
         release: str = 'v1.2.3',
     ) -> None:
-        self._profile = profile or Profile('mmaachado', 'Marcelo', 27, 20, 1)
+        self._profile = profile or Profile('octocat', 'The Octocat', 42, 8, 3)
         self._repositories = repositories or (
-            Repository('sycp', 'mmaachado/sycp', 29, fork=False),
-            Repository(
-                'django-shadcn', 'mmaachado/django-shadcn', 1, fork=False
-            ),
-            Repository('dotfiles', 'mmaachado/dotfiles', 1, fork=False),
+            Repository('hello-world', 'octocat/hello-world', 12, fork=False),
+            Repository('spoon-knife', 'octocat/spoon-knife', 7, fork=False),
+            Repository('dotfiles', 'octocat/dotfiles', 3, fork=False),
         )
         self._release = release
         self.calls: list[str] = []

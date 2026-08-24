@@ -47,9 +47,9 @@ def test_parses_a_bare_name() -> None:
 
 
 def test_an_argument_may_contain_a_slash() -> None:
-    found = find('<!--wr:gh_repo_stars:mmaachado/sycp-->0<!--/wr-->')[0]
+    found = find('<!--wr:gh_repo_stars:octocat/hello-world-->0<!--/wr-->')[0]
 
-    assert found.arg == 'mmaachado/sycp'
+    assert found.arg == 'octocat/hello-world'
 
 
 def test_tolerates_whitespace_inside_the_markers() -> None:
@@ -96,7 +96,7 @@ def test_resolves_several_placeholders_in_one_pass() -> None:
 
     # The markers survive; only what sits between them is replaced, which
     # is what lets the next run find them again.
-    assert [item.rendered for item in result.resolutions] == ['Python', '31']
+    assert [item.rendered for item in result.resolutions] == ['Python', '22']
     assert result.text.startswith('<!--wr:top_lang-->Python<!--/wr--> and ')
 
 
@@ -110,9 +110,9 @@ def test_github_metrics_read_the_profile() -> None:
     result = apply(text, context())
 
     assert [item.rendered for item in result.resolutions] == [
-        '27',
-        '20',
-        'sycp',
+        '42',
+        '8',
+        'hello-world',
     ]
 
 
@@ -123,7 +123,7 @@ def test_a_file_of_github_metrics_never_touches_wakatime() -> None:
 
     result = apply(text, context(wakatime=ExplodingWakaTime()))
 
-    assert result.resolutions[0].rendered == '31'
+    assert result.resolutions[0].rendered == '22'
 
 
 def test_the_range_comes_from_the_context() -> None:

@@ -28,11 +28,12 @@ def test_parses_the_real_payload(
 
     python = client().stats().language('Python')
 
-    # The figures this whole project was built around.
-    assert python.total_seconds == pytest.approx(3212992.088495)
-    assert python.hours == pytest.approx(892.4978, abs=1e-3)
-    assert python.percent == pytest.approx(46.27)
-    assert python.text == '892 hrs 29 mins'
+    # Fixture values, chosen so the arithmetic is easy to check by
+    # hand when this fails: 3.1M seconds is 861.11 hours.
+    assert python.total_seconds == pytest.approx(3_100_000.0)
+    assert python.hours == pytest.approx(861.1111, abs=1e-3)
+    assert python.percent == pytest.approx(57.41)
+    assert python.text == '861 hrs 6 mins'
 
 
 def test_reads_the_overall_total(
@@ -40,7 +41,7 @@ def test_reads_the_overall_total(
 ) -> None:
     transport(ok(all_time))
 
-    assert client().stats().hours == pytest.approx(1903.05, abs=0.01)
+    assert client().stats().hours == pytest.approx(1500.0, abs=0.01)
 
 
 def test_since_falls_back_to_the_prose_range(
@@ -51,7 +52,7 @@ def test_since_falls_back_to_the_prose_range(
     # to render the literal string 'None' into the README.
     transport(ok(all_time))
 
-    assert client().stats().since == 'Mar 30 2023'
+    assert client().stats().since == 'Jan 01 2020'
 
 
 def test_language_lookup_ignores_case(

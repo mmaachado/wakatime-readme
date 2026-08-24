@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-08-24
+
 ### Added
 
 - Placeholder engine: `<!--wr:name[:arg][:format]-->` pairs are resolved and
@@ -24,4 +26,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Project scaffolding: packaging metadata, tooling configuration, CI and
   community health files.
 
-[Unreleased]: https://github.com/mmaachado/wakatime-readme/commits/master
+[Unreleased]: https://github.com/mmaachado/wakatime-readme/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/mmaachado/wakatime-readme/releases/tag/v1.0.0

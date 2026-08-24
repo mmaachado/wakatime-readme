@@ -1,0 +1,76 @@
+{
+  "data": {
+    "range": "all_time",
+    "status": "ok",
+    "timeout": 15,
+    "writes_only": false,
+    "holidays": 461,
+    "days_including_holidays": 1244,
+    "days_minus_holidays": 783,
+    "percent_calculated": 100,
+    "total_seconds": 5400000.0,
+    "daily_average": 7200.0,
+    "human_readable_total": "1,500 hrs 0 mins",
+    "human_readable_daily_average": "2 hrs",
+    "human_readable_range": "since Jan 01 2020",
+    "is_up_to_date": true,
+    "is_stuck": false,
+    "is_already_updating": false,
+    "is_cached": true,
+    "is_including_today": false,
+    "languages": [
+      {
+        "name": "Python",
+        "total_seconds": 3100000.0,
+        "percent": 57.41,
+        "digital": "861:06",
+        "decimal": "861.11",
+        "text": "861 hrs 6 mins",
+        "hours": 861,
+        "minutes": 6
+      },
+      {
+        "name": "Markdown",
+        "total_seconds": 1200000.0,
+        "percent": 22.22,
+        "digital": "333:20",
+        "decimal": "333.33",
+        "text": "333 hrs 20 mins",
+        "hours": 333,
+        "minutes": 20
+      },
+      {
+        "name": "HTML",
+        "total_seconds": 600000.0,
+        "percent": 11.11,
+        "digital": "166:40",
+        "decimal": "166.67",
+        "text": "166 hrs 40 mins",
+        "hours": 166,
+        "minutes": 40
+      },
+      {
+        "name": "Rust",
+        "total_seconds": 300000.0,
+        "percent": 5.56,
+        "digital": "83:20",
+        "decimal": "83.33",
+        "text": "83 hrs 20 mins",
+        "hours": 83,
+        "minutes": 20
+      },
+      {
+        "name": "Shell",
+        "total_seconds": 200000.0,
+        "percent": 3.7,
+        "digital": "55:33",
+        "decimal": "55.56",
+        "text": "55 hrs 33 mins",
+        "hours": 55,
+        "minutes": 33
+      }
+    ],
+    "start": null,
+    "end": null
+  }
+}
