@@ -1,0 +1,16 @@
+.git
+.github
+.venv
+tests
+htmlcov
+uv.lock
+CONTRIBUTING.md
+CHANGELOG.md
+SECURITY.md
+.python-version
+.pre-commit-config.yaml
+**/__pycache__
+**/*.pyc
+.mypy_cache
+.pytest_cache
+.ruff_cache

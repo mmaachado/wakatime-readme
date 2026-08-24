@@ -1,0 +1,27 @@
+name: Feature request
+description: Suggest a new metric, format, or capability.
+labels: ['enhancement']
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to put in your README that you cannot today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you have in mind
+      description: If it is a new metric or format, show the placeholder you would write.
+      render: markdown
+
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraints
+      description: >-
+        The project is stdlib-only by design. See CONTRIBUTING.md.
+      options:
+        - label: This can be built without adding a runtime dependency, as far as I know.

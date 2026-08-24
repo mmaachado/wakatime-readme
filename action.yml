@@ -1,0 +1,150 @@
+name: 'WakaTime README'
+description: >-
+  Fill named placeholders in a Markdown file with live WakaTime and GitHub
+  metrics, and commit the result without checking the repository out.
+author: 'Marcelo Machado'
+
+branding:
+  icon: 'clock'
+  color: 'blue'
+
+inputs:
+  wakatime_api_key:
+    description: >-
+      Your WakaTime API key, from https://wakatime.com/api-key. Only needed
+      if the file uses WakaTime placeholders.
+    required: false
+    default: ''
+
+  github_token:
+    description: >-
+      Token used to read metrics and commit the result. The default is the
+      workflow's own token, which GitHub signs, so the commit lands verified.
+      Supply a personal access token only to write to another repository;
+      commits made with one are not verified.
+    required: false
+    default: ${{ github.token }}
+
+  repository:
+    description: 'Repository holding the file, as owner/name.'
+    required: false
+    default: ${{ github.repository }}
+
+  readme_path:
+    description: 'Path to the file, relative to the repository root.'
+    required: false
+    default: 'README.md'
+
+  branch:
+    description: 'Branch to commit to. Defaults to the repository default.'
+    required: false
+    default: ''
+
+  username:
+    description: >-
+      Account the GitHub metrics describe. Defaults to the owner of
+      `repository`, because the workflow token belongs to a bot rather than
+      to a person.
+    required: false
+    default: ''
+
+  time_range:
+    description: >-
+      WakaTime range for placeholders that do not name one: all_time,
+      last_7_days, last_30_days, last_6_months or last_year.
+    required: false
+    default: 'all_time'
+
+  retries:
+    description: 'Attempts while WakaTime recomputes a range.'
+    required: false
+    default: '3'
+
+  strict:
+    description: >-
+      Exit 2 when the data is unavailable. Off by default so a scheduled
+      run does not fail over a brief outage.
+    required: false
+    default: 'false'
+
+  dry_run:
+    description: 'Report what would change and write nothing.'
+    required: false
+    default: 'false'
+
+  commit_message:
+    description: 'Message for the commit.'
+    required: false
+    default: 'chore: refresh README metrics'
+
+  committer_name:
+    description: 'Committer name. Both name and email, or neither.'
+    required: false
+    default: ''
+
+  committer_email:
+    description: 'Committer email. Both name and email, or neither.'
+    required: false
+    default: ''
+
+  author_name:
+    description: 'Author name. Both name and email, or neither.'
+    required: false
+    default: ''
+
+  author_email:
+    description: 'Author email. Both name and email, or neither.'
+    required: false
+    default: ''
+
+  blocks:
+    description: 'Characters used to draw the activity chart, empty to full.'
+    required: false
+    default: '⣀⣄⣤⣦⣶⣷⣿'
+
+  code_lang:
+    description: 'Language tag on the chart code fence. Empty for no fence.'
+    required: false
+    default: 'markdown'
+
+  lang_count:
+    description: 'How many languages the chart lists.'
+    required: false
+    default: '5'
+
+  ignored_languages:
+    description: 'Space-separated language names to leave out of the chart.'
+    required: false
+    default: ''
+
+  stop_at_other:
+    description: 'Stop the chart when the Other bucket is reached.'
+    required: false
+    default: 'false'
+
+  show_time:
+    description: 'Include the time column in the chart.'
+    required: false
+    default: 'true'
+
+  show_total:
+    description: 'Include the total header above the chart.'
+    required: false
+    default: 'true'
+
+  api_base_url:
+    description: 'WakaTime API base URL, for compatible services.'
+    required: false
+    default: 'https://wakatime.com/api/v1'
+
+  github_api_url:
+    description: 'GitHub API base URL, for GitHub Enterprise.'
+    required: false
+    default: 'https://api.github.com'
+
+runs:
+  using: 'docker'
+  # Built from source until the first release publishes an image; after
+  # that this becomes docker://ghcr.io/mmaachado/wakatime-readme:v1 so a
+  # run pulls rather than builds.
+  image: 'Dockerfile'
