@@ -7,7 +7,7 @@ import io
 from collections.abc import Callable
 from pathlib import Path
 
-from tests.helpers import FakeTransport, Payload, ok
+from tests.helpers import FakeTransport, Payload, contents, ok
 from wakatime_readme.main import main
 
 Install = Callable[..., FakeTransport]
@@ -224,3 +224,42 @@ def test_action_inputs_are_read_from_the_environment(
 
     assert result.code == 0
     assert '+850' in path.read_text(encoding='utf-8')
+
+
+def test_a_rejected_commit_costs_one_reread_and_one_commit(
+    transport: Install, gh_user: Payload
+) -> None:
+    """Invariant 9: never PUT without the sha from this run's GET.
+
+    A 409 means the blob moved between the read and the write. The run
+    re-reads once, resolves again on top of whatever arrived, commits
+    once more, and stops there.
+    """
+    document = 'followers: <!--wr:gh_followers-->0<!--/wr-->\n'
+    fake = transport(
+        ok(contents(document, sha='before')),
+        ok(gh_user),
+        ok({'message': 'is at another sha'}, status=409),
+        ok(contents(document, sha='after')),
+        ok(gh_user),
+        ok({'commit': {'sha': 'committed'}}),
+    )
+
+    result = run(
+        ['--readme', 'README.md', '--repo', 'octocat/octocat'],
+        {'GITHUB_TOKEN': 'ghs_fake-token'},
+    )
+
+    assert result.code == 0
+    commits = [url for method, url in fake.calls if method == 'PUT']
+    rereads = [
+        url
+        for method, url in fake.calls
+        if method == 'GET' and '/contents/' in url
+    ]
+    assert len(rereads) == 2
+    assert len(commits) == 2
+
+    # The retry commits against the sha the re-read handed back, never
+    # the stale one GitHub just rejected.
+    assert fake.sent(5)['sha'] == 'after'

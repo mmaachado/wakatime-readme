@@ -1,0 +1,23 @@
+# Prettier is not this project's formatter. Python is handled by ruff
+# (`quote-style = 'single'`), and the files below are either data under
+# assertion or YAML written in the same single-quote style. Both have
+# already been damaged by a format-on-save.
+
+# Captured API responses and rendered output. Their exact bytes ARE the
+# assertion in tests/test_blocks.py: a Markdown formatter collapsed the
+# chart's column alignment once, and the parity test went red.
+tests/fixtures/
+
+# The action's public contract, and the workflows that publish it.
+# Prettier rewrites 'single' to "double" across the whole file, which
+# buries a one-line change in a few hundred lines of requoting.
+action.yml
+.github/
+
+# Managed by uv.
+uv.lock
+
+# Generated.
+htmlcov/
+.venv/
+dist/

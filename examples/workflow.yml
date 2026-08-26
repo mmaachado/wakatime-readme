@@ -1,0 +1,41 @@
+# Copy to .github/workflows/readme.yml in the repository holding the file.
+# Nothing else is needed: no checkout, no commit step, no bot account.
+
+name: 'Refresh README metrics'
+
+on:
+  schedule:
+    # 03:00 UTC daily. Pick an odd minute; the top of the hour is the
+    # busiest slot on GitHub's shared cron queue and gets delayed most.
+    - cron: '17 3 * * *'
+  # Lets you run it once by hand instead of waiting for the first cron.
+  workflow_dispatch:
+
+# The action commits through the Contents API, so it needs write here.
+# Nothing else is granted, and GitHub signs the commit the workflow's own
+# token makes, so it lands Verified.
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mmaachado/wakatime-readme@v1
+        with:
+          # Only needed if the file uses WakaTime placeholders. Get the
+          # key at https://wakatime.com/api-key and store it as a
+          # repository secret; it is sent as an Authorization header and
+          # never appears in a URL or a log line.
+          wakatime_api_key: ${{ secrets.WAKATIME_API_KEY }}
+
+          # Everything below is optional and shown at its default.
+          # readme_path: 'README.md'
+          # time_range: 'all_time'
+          # lang_count: '5'
+          # ignored_languages: 'Other Text'
+          # commit_message: 'chore: refresh README metrics'
+
+          # Turn on while you are still adjusting placeholders: it prints
+          # what each one would resolve to and writes nothing.
+          # dry_run: 'true'

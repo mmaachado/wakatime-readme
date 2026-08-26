@@ -1,13 +1,6 @@
 # wakatime-readme
 
-dev metrics with [WakaTime](https://wakatime.com) for your README.md
-
-> Warning
->
-> **Status: pre-release.** The v0.1.0 contract is specified and the packaging is
-> in place, but the implementation has not landed yet. There is no published
-> release or container image, so the usage below does not work today. Watch the
-> repository for `v1`
+Dev metrics with [WakaTime](https://wakatime.com) for your README.md
 
 ## Why
 
@@ -17,8 +10,7 @@ Other's solution rewrites one fixed block with a bar chart of your recent activi
 I'm a prolific Python developer with <!--wr:lang_hours:Python:floor50-->+850<!--/wr--> hours.
 ```
 
-That is the gap this fills. It also renders the bar chart itself, so it can take
-over the whole job rather than sitting beside it
+That is the gap this fills. It also renders the bar chart itself, so it can take over the whole job rather than sitting beside it.
 
 ## Placeholders
 
@@ -103,6 +95,9 @@ jobs:
         with:
           wakatime_api_key: ${{ secrets.WAKATIME_API_KEY }}
 ```
+
+A complete workflow and a profile README wired up to every placeholder are in
+[`examples/`](examples/).
 
 That is the whole workflow. No `actions/checkout`, no commit step. The file is
 read and written through the GitHub Contents API. `github_token` defaults to the

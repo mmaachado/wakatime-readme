@@ -1,0 +1,86 @@
+{
+  "data": {
+    "range": "last_7_days",
+    "status": "ok",
+    "timeout": 15,
+    "writes_only": false,
+    "holidays": 0,
+    "days_including_holidays": 7,
+    "days_minus_holidays": 7,
+    "percent_calculated": 100,
+    "total_seconds": 36000.0,
+    "daily_average": 5142.0,
+    "human_readable_total": "10 hrs",
+    "human_readable_daily_average": "1 hr 25 mins",
+    "human_readable_range": "Last 7 Days",
+    "is_up_to_date": true,
+    "is_stuck": false,
+    "is_already_updating": false,
+    "is_cached": false,
+    "is_including_today": false,
+    "languages": [
+      {
+        "name": "Markdown",
+        "total_seconds": 16200.0,
+        "percent": 45.03,
+        "digital": "4:30",
+        "decimal": "4.50",
+        "text": "4 hrs 30 mins",
+        "hours": 4,
+        "minutes": 30
+      },
+      {
+        "name": "Python",
+        "total_seconds": 7260.0,
+        "percent": 20.3,
+        "digital": "2:01",
+        "decimal": "2.01",
+        "text": "2 hrs 1 min",
+        "hours": 2,
+        "minutes": 1
+      },
+      {
+        "name": "HTML",
+        "total_seconds": 6360.0,
+        "percent": 17.73,
+        "digital": "1:46",
+        "decimal": "1.76",
+        "text": "1 hr 46 mins",
+        "hours": 1,
+        "minutes": 46
+      },
+      {
+        "name": "Bash",
+        "total_seconds": 2160.0,
+        "percent": 6.01,
+        "digital": "0:36",
+        "decimal": "0.60",
+        "text": "36 mins",
+        "hours": 0,
+        "minutes": 36
+      },
+      {
+        "name": "JavaScript",
+        "total_seconds": 720.0,
+        "percent": 2.09,
+        "digital": "0:12",
+        "decimal": "0.20",
+        "text": "12 mins",
+        "hours": 0,
+        "minutes": 12
+      },
+      {
+        "name": "CoffeeScript",
+        "total_seconds": 3180.0,
+        "percent": 8.84,
+        "digital": "0:53",
+        "decimal": "0.88",
+        "text": "53 mins",
+        "hours": 0,
+        "minutes": 53
+      }
+    ],
+    "start": "2024-03-24T00:00:00Z",
+    "end": "2024-03-30T23:59:59Z"
+  }
+}

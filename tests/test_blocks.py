@@ -3,10 +3,16 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 import pytest
 
-from wakatime_readme.blocks import ChartOptions, _body, make_graph
-from wakatime_readme.wakatime import Language, Stats
+from tests.helpers import FakeTransport, Payload, load_text, ok
+from wakatime_readme.blocks import ChartOptions, _body, make_graph, render
+from wakatime_readme.metrics import Context
+from wakatime_readme.wakatime import Language, Stats, WakaTimeClient
+
+Install = Callable[..., FakeTransport]
 
 PALETTE = '⣀⣄⣤⣦⣶⣷⣿'
 FULL = '⣿'
@@ -148,3 +154,38 @@ def test_an_empty_range_says_so_instead_of_rendering_nothing() -> None:
     empty = Stats(0.0, 0.0, None, 'Last 7 Days', ())
 
     assert 'No activity' in _body(empty, ChartOptions())
+
+
+def test_the_whole_chart_matches_the_profile_it_replaces(
+    transport: Install, last_7_days: Payload
+) -> None:
+    """The acceptance test for retiring `athul/waka-readme`.
+
+    The expected text is the block the old tool left in the profile
+    README, copied verbatim into a fixture. Every duration and
+    percentage in it was produced by that other implementation, so
+    agreement here is two tools agreeing rather than this one agreeing
+    with itself.
+
+    The response is reconstructed, not captured: each field the chart
+    reads comes off the rendered block, and the trailing language is
+    what the measured column width proves was in the range without ever
+    being displayed -- 12 characters wide against a longest visible name
+    of 10. Its name is the one unverifiable detail here; nothing else in
+    the comparison depends on it.
+    """
+    transport(ok(last_7_days))
+    # The placeholder names the range, while the run is configured for
+    # `all_time`: the argument has to win, or a migrated profile would
+    # quietly switch to lifetime totals on its first run.
+    context = Context(
+        wakatime=WakaTimeClient('waka_key', sleep=lambda _s: None),
+        github=None,
+        range_name='all_time',
+    )
+
+    chart = render(context, 'activity_chart', 'last_7_days', ChartOptions())
+
+    # The leading newline is the renderer's own: it separates the fence
+    # from the opening marker. Everything after it must be the fixture.
+    assert chart == '\n' + load_text('profile_activity_chart.md')

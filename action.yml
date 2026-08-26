@@ -144,7 +144,7 @@ inputs:
 
 runs:
   using: 'docker'
-  # Built from source until the first release publishes an image; after
-  # that this becomes docker://ghcr.io/mmaachado/wakatime-readme:v1 so a
-  # run pulls rather than builds.
-  image: 'Dockerfile'
+  # Pulled, not built: a consumer's run should not pay for a Docker build.
+  # The release workflow moves this floating tag onto every new version,
+  # so `@v1` and the image it pulls always describe the same release.
+  image: 'docker://ghcr.io/mmaachado/wakatime-readme:v1'

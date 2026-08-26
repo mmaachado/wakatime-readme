@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import base64
 import json
 import pathlib
 import urllib.request
@@ -33,9 +34,25 @@ def load_array(name: str) -> Listing:
     return decoded
 
 
+def load_text(name: str) -> str:
+    """Read a fixture that is plain text rather than JSON."""
+    return (FIXTURES / name).read_text(encoding='utf-8')
+
+
 def ok(body: Json | None, status: int = 200) -> http.Response:
     """Stage one response for the fake transport."""
     return http.Response(status, body)
+
+
+def contents(text: str, sha: str = 'blob-sha') -> Payload:
+    """Shape a Contents API response the way GitHub returns one.
+
+    Example:
+        >>> contents('hi', sha='abc')['sha']
+        'abc'
+    """
+    encoded = base64.b64encode(text.encode('utf-8')).decode('ascii')
+    return {'content': encoded, 'encoding': 'base64', 'sha': sha}
 
 
 class FakeTransport:

@@ -38,6 +38,12 @@ def all_time() -> Payload:
 
 
 @pytest.fixture
+def last_7_days() -> Payload:
+    """The seven-day range behind the chart the profile already shows."""
+    return load_object('wakatime_last_7_days.json')
+
+
+@pytest.fixture
 def gh_user() -> Payload:
     """The real profile response captured from the live API."""
     return load_object('github_user.json')

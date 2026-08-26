@@ -8,7 +8,7 @@ from collections.abc import Callable
 
 import pytest
 
-from tests.helpers import FakeTransport, Listing, Payload, ok
+from tests.helpers import FakeTransport, Listing, Payload, contents, ok
 from wakatime_readme.github import (
     ConflictError,
     FileContent,
@@ -25,12 +25,6 @@ REPO = 'octocat/octocat'
 def client(token: str = TOKEN) -> GitHubClient:
     """Build a client for the account the fixtures were captured from."""
     return GitHubClient(token, 'octocat')
-
-
-def contents(text: str, sha: str = 'blob-sha') -> Payload:
-    """Shape a Contents API response the way GitHub returns one."""
-    encoded = base64.b64encode(text.encode('utf-8')).decode('ascii')
-    return {'content': encoded, 'encoding': 'base64', 'sha': sha}
 
 
 def test_parses_the_real_profile(transport: Install, gh_user: Payload) -> None:

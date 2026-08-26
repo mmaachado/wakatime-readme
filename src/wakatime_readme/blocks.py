@@ -5,7 +5,7 @@ The chart reproduces the layout people already have in their profiles,
 so swapping tools does not reflow a single line. Two details of that
 layout are easy to get wrong and are pinned by tests:
 
-- The partial block is chosen with a rounding bias, not a plain floor.
+- The partial block is rounded to the nearest marker, not floored.
 - The name column is padded to the longest language in the *whole*
   response, not to the longest of the few that end up displayed.
 """
@@ -50,9 +50,16 @@ class ChartOptions:
 def make_graph(blocks: str, percent: float, length: int) -> str:
     """Draw one proportional bar.
 
-    The `+ 0.5 / markers` and `+ 0.5` are deliberate rounding biases: a
-    language at 45.03% of a 25-wide bar gets eleven full blocks and a
-    three-quarter one, not eleven and a quarter.
+    The `+ 0.5` rounds the leftover to the nearest marker, which is what
+    gives a language at 45.03% of a 25-wide bar eleven full blocks and a
+    three-quarter one rather than eleven and a quarter.
+
+    The `+ 0.5 / markers` is inherited from the tool this replaces. It
+    provably changes nothing: for every percentage in 0..100 at every
+    width from 5 to 60, dropping it yields the same bar, because a
+    leftover large enough to shift the floor also rounds up to a full
+    block on the next line. It is kept so the two implementations stay
+    line-for-line comparable, not because it does any work.
 
     Example:
         >>> make_graph('⣀⣄⣤⣦⣶⣷⣿', 45.03, 25).count('⣿')
