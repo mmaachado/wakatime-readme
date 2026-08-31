@@ -10,7 +10,7 @@ COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
 RUN uv build --wheel --out-dir /dist
 
-FROM python:3.13-slim
+FROM python:3.14-slim
 
 LABEL org.opencontainers.image.source=https://github.com/mmaachado/wakatime-readme
 LABEL org.opencontainers.image.description="dev metrics with Wakatime for your README.md"
