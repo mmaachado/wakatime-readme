@@ -90,6 +90,21 @@ FORMATTERS: dict[str, Formatter] = {
 }
 
 
+def is_format(name: str) -> bool:
+    """Say whether a name refers to a known format.
+
+    The parser asks this to read a two-field placeholder: in
+    `total_hours:1f` the second field is a format, while in `top_lang:2`
+    it is an argument. Answering here rather than in the parser is what
+    keeps adding a format to one function plus one entry.
+
+    Example:
+        >>> is_format('1f'), is_format('Python')
+        (True, False)
+    """
+    return name in FORMATTERS
+
+
 def render(value: Value, format_name: str | None) -> str:
     """Apply a named format, choosing a sensible one when none was given.
 

@@ -38,9 +38,10 @@ DATA_UNAVAILABLE = 2
 # will not fix themselves on the next scheduled run, so they fail loudly.
 AUTHORING_ERRORS = (ConfigError, MetricError, FormatError, LookupError)
 
-# Raised when the data simply is not there yet. A nightly job should not
-# turn red because an API was briefly busy.
-TRANSIENT_ERRORS = (StaleStats, HttpError, ConflictError)
+# Raised when an API could not be reached at all. A nightly job should
+# not turn red because one was briefly busy, so these stay green unless
+# the caller asked for strictness.
+TRANSIENT_ERRORS = (HttpError, ConflictError)
 
 
 def _warn(stream: TextIO, message: str, env: Mapping[str, str]) -> None:
@@ -93,6 +94,7 @@ def _context(
             settings.wakatime_api_key,
             settings.wakatime_url,
             settings.retries,
+            keystroke_timeout=settings.keystroke_timeout,
         )
 
     metrics_github = None
@@ -203,6 +205,13 @@ def main(
     except OSError as error:
         print(f'error: {error}', file=err)
         return CONFIG_ERROR
+    except StaleStats as error:
+        # A failure whether or not `strict` was asked for. WakaTime did
+        # answer, and said it has no final number, so nothing was
+        # written. Reporting success here is what let a README publish a
+        # wrong total for days without anyone noticing.
+        _warn(err, f'{error}; leaving the file alone', env)
+        return DATA_UNAVAILABLE
     except TRANSIENT_ERRORS as error:
         _warn(err, f'{error}; leaving the file alone', env)
         return DATA_UNAVAILABLE if settings.strict else OK

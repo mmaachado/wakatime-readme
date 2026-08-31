@@ -32,6 +32,13 @@ jobs:
           # Everything below is optional and shown at its default.
           # readme_path: 'README.md'
           # time_range: 'all_time'
+
+          # Minutes of pause that still count as coding. 15 is what
+          # wakatime.com's own profile pages use; set it to your
+          # WakaTime account setting if you would rather match the
+          # numbers on your dashboard.
+          # keystroke_timeout: '15'
+
           # lang_count: '5'
           # ignored_languages: 'Other Text'
           # commit_message: 'chore: refresh README metrics'

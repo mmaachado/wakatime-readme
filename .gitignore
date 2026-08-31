@@ -287,4 +287,7 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# artifacts generated
+artifacts/
+
 # Generated using ignr.py - github.com/Antrikshy/ignr.py

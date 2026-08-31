@@ -193,3 +193,50 @@ def test_the_chart_replaces_a_whole_block() -> None:
     assert '```markdown' in result.text
     assert 'Total Time:' in result.text
     assert 'Python' in result.text
+
+
+def test_a_format_reaches_a_metric_that_takes_no_argument() -> None:
+    """Regression: `total_hours:1f` used to drop the format in silence.
+
+    The second field was always read as the argument, so a metric that
+    takes none had no way to ask for a format and fell back to `int`.
+    The README published 1920 where its author had written 1f and
+    expected 1920.0 -- wrong, and quiet about it.
+    """
+    found = find('<!--wr:total_hours:1f-->x<!--/wr-->')[0]
+
+    assert found.arg is None
+    assert found.format_name == '1f'
+
+
+def test_an_explicit_empty_argument_still_works() -> None:
+    # The `metric::format` spelling predates the rule above and stays
+    # valid; anyone who already wrote it keeps working.
+    found = find('<!--wr:total_hours::1f-->x<!--/wr-->')[0]
+
+    assert found.arg is None
+    assert found.format_name == '1f'
+
+
+def test_an_argument_that_is_not_a_format_stays_an_argument() -> None:
+    # `top_lang:2` is a rank. Only a name the format registry knows is
+    # read as a format, which is what keeps the two apart.
+    found = find('<!--wr:top_lang:2-->x<!--/wr-->')[0]
+
+    assert found.arg == '2'
+    assert found.format_name is None
+
+
+def test_three_fields_are_unaffected() -> None:
+    found = find('<!--wr:lang_hours:Python:1f-->x<!--/wr-->')[0]
+
+    assert found.arg == 'Python'
+    assert found.format_name == '1f'
+
+
+def test_the_format_actually_lands_in_the_document() -> None:
+    # The parsing above is only worth anything if the rendered text
+    # changes: `int` would have written 1500.
+    result = apply('<!--wr:total_hours:1f-->x<!--/wr-->', context())
+
+    assert '1500.0' in result.text

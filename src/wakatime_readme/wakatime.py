@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import base64
 import time
+import urllib.parse
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import Any
@@ -18,9 +19,24 @@ from .http import ACCEPTED, HttpError, JsonClient, Redactor
 BASE_URL = 'https://wakatime.com/api/v1'
 DEFAULT_RANGE = 'all_time'
 
+# Minutes of pause that still count as coding. WakaTime keeps a
+# per-account default and applies it whenever the request leaves the
+# parameter out, but its own public profile pages render with 15.
+# Inheriting the account value published totals about a third below what
+# the profile advertised, so this is always sent explicitly now.
+DEFAULT_KEYSTROKE_TIMEOUT = 15
+
+# Attempts, and the total seconds they may spend asleep between them.
+# Only a keystroke timeout WakaTime has already computed answers at once;
+# any other comes back `202` with `percent_calculated: 0` and needs real
+# time, which the previous budget of three seconds never gave it.
+DEFAULT_RETRIES = 6
+RETRY_BUDGET_SECONDS = 30.0
+
 UNAUTHORIZED = 401
 FORBIDDEN = 403
 SECONDS_PER_HOUR = 3600.0
+COMPLETE = 100.0
 
 
 class StaleStats(Exception):
@@ -30,6 +46,9 @@ class StaleStats(Exception):
     documented advice is to check `is_up_to_date` and retry; when the
     retries run out we raise this rather than write a number we do not
     believe.
+
+    `is_up_to_date` alone is not enough to tell that apart from a final
+    answer -- see `_settled`.
     """
 
 
@@ -127,6 +146,29 @@ def _language(payload: dict[str, Any]) -> Language:
     )
 
 
+def _settled(payload: dict[str, Any]) -> bool:
+    """Say whether a stats payload is final enough to publish.
+
+    WakaTime computes long ranges lazily, and while it works it answers
+    `200` with real-looking but partial numbers. `is_up_to_date` can
+    already be true while `percent_calculated` is still climbing, so
+    both have to agree before the answer is worth writing down.
+
+    Example:
+        >>> _settled({'is_up_to_date': True, 'percent_calculated': 100})
+        True
+        >>> _settled({'is_up_to_date': True, 'percent_calculated': 67})
+        False
+        >>> _settled({})
+        False
+    """
+    if not payload:
+        return False
+    if not payload.get('is_up_to_date', True):
+        return False
+    return float(payload.get('percent_calculated', COMPLETE)) >= COMPLETE
+
+
 def _stats(payload: dict[str, Any]) -> Stats:
     """Build the stats model from the `data` object of a stats response."""
     languages: Sequence[dict[str, Any]] = payload.get('languages', [])
@@ -152,12 +194,16 @@ class WakaTimeClient:
         self,
         api_key: str,
         base_url: str = BASE_URL,
-        retries: int = 3,
+        retries: int = DEFAULT_RETRIES,
         sleep: Callable[[float], None] | None = None,
+        keystroke_timeout: int = DEFAULT_KEYSTROKE_TIMEOUT,
+        budget: float = RETRY_BUDGET_SECONDS,
     ) -> None:
         """Prepare the client without contacting anything yet."""
         self.base_url = base_url
         self.retries = retries
+        self.keystroke_timeout = keystroke_timeout
+        self.budget = budget
         # Looked up now rather than bound as a default argument, so a
         # test can replace the clock without reaching into the instance.
         self._sleep = sleep if sleep is not None else time.sleep
@@ -177,34 +223,56 @@ class WakaTimeClient:
             self._cache[range_name] = self._fetch(range_name)
         return self._cache[range_name]
 
+    def _poll(self, range_name: str) -> dict[str, Any]:
+        """Ask once, answering with `{}` when there is nothing usable."""
+        # Sent on every request rather than left to the account default:
+        # the default is what made the published totals disagree with the
+        # profile page they were supposed to mirror.
+        query = urllib.parse.urlencode({'timeout': self.keystroke_timeout})
+        response = self._client.request(
+            'GET', f'/users/current/stats/{range_name}?{query}'
+        )
+        if response.status in (UNAUTHORIZED, FORBIDDEN):
+            raise self._client.fail(
+                'WakaTime rejected the API key', response.status
+            )
+        if response.status >= ACCEPTED:
+            return {}
+        return (response.body or {}).get('data') or {}
+
     def _fetch(self, range_name: str) -> Stats:
         """Request a range, retrying while the answer is not settled."""
+        seen = 'an unknown share'
+        spent = 0.0
         for attempt in range(self.retries):
-            response = self._client.request(
-                'GET', f'/users/current/stats/{range_name}'
-            )
-            if response.status in (UNAUTHORIZED, FORBIDDEN):
-                raise self._client.fail(
-                    'WakaTime rejected the API key', response.status
-                )
-            if response.status >= ACCEPTED:
-                self._wait(attempt)
-                continue
-
-            payload = (response.body or {}).get('data') or {}
-            if payload.get('is_up_to_date', True):
+            payload = self._poll(range_name)
+            if _settled(payload):
                 return _stats(payload)
-            self._wait(attempt)
+            share = payload.get('percent_calculated')
+            if share is not None:
+                seen = f'{share}%'
+            spent = self._wait(attempt, spent)
 
         raise StaleStats(
-            f'WakaTime is still recomputing {range_name!r} after '
-            f'{self.retries} attempts'
+            f'WakaTime is still computing {range_name!r} at keystroke '
+            f'timeout {self.keystroke_timeout} after {self.retries} '
+            f'attempts across {spent:.0f}s; the last answer covered '
+            f'{seen} of the range, not {COMPLETE:.0f}%'
         )
 
-    def _wait(self, attempt: int) -> None:
-        """Back off between attempts, but never after the last one."""
-        if attempt < self.retries - 1:
-            self._sleep(2.0**attempt)
+    def _wait(self, attempt: int, spent: float) -> float:
+        """Back off, never after the last attempt nor past the budget.
+
+        Returns the seconds slept so far, so the caller can report how
+        long it actually waited before giving up.
+        """
+        if attempt >= self.retries - 1:
+            return spent
+        delay = min(2.0**attempt, self.budget - spent)
+        if delay <= 0:
+            return spent
+        self._sleep(delay)
+        return spent + delay
 
 
 def unavailable(error: Exception) -> bool:

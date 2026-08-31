@@ -1,10 +1,5 @@
 # Security Policy
 
-## Supported versions
-
-The project is pre-release. Until `v1.0.0` ships, only the latest commit on
-`master` receives fixes.
-
 ## Reporting a vulnerability
 
 **Do not open a public issue for a security problem.**

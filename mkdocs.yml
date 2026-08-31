@@ -1,0 +1,54 @@
+site_name: 'wakatime-readme'
+site_description: 'Dev metrics with WakaTime for your README.md'
+site_url: 'https://mmaachado.github.io/wakatime-readme/'
+site_author: 'Marcelo Machado'
+repo_url: 'https://github.com/mmaachado/wakatime-readme'
+edit_uri: 'edit/master/docs/'
+copyright: 'MIT'
+
+theme:
+  name: shadcn
+  # Resolved from docs_dir, not from the project root. An `.svg` that
+  # exists there is inlined into the navbar rather than linked, which is
+  # why the file carries `fill="currentColor"`: anything else would stay
+  # black and vanish against the dark theme. It doubles as the favicon.
+  icon: 'assets/wakatime.svg'
+  pygments_style:
+    light: shadcn-light
+    dark: github-dark
+
+plugins:
+  - search
+  # Versioned docs. The theme renders its version selector only when
+  # 'mike' appears here, so this entry is what puts the switcher in the
+  # header. `copy` rather than the default `symlink`: GitHub Pages does
+  # not follow git symlinks, so `latest/` has to be a real directory.
+  - mike:
+      alias_type: copy
+      canonical_version: latest
+
+markdown_extensions:
+  admonition:
+  codehilite:
+  fenced_code:
+  footnotes:
+  # The reference pages are almost entirely tables; declaring it here
+  # rather than relying on the default keeps the build honest.
+  tables:
+  attr_list:
+  toc:
+    permalink: true
+  # Left at the default legacy style on purpose. The theme styles
+  # `input:checked + label + div.tabbed-content`, which only exists when
+  # `alternate_style` is off; turning it on groups the labels into a
+  # `.tabbed-labels` wrapper the theme has no rule for, and every tab
+  # renders its title with the body invisible.
+  pymdownx.blocks.tab:
+
+nav:
+  - Home: 'index.md'
+  - Getting started: 'getting-started.md'
+  - Placeholders: 'placeholders.md'
+  - Configuration: 'configuration.md'
+  - Matching WakaTime: 'matching-wakatime.md'
+  - Behaviour: 'behaviour.md'

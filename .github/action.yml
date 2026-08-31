@@ -55,15 +55,29 @@ inputs:
     required: false
     default: 'all_time'
 
-  retries:
-    description: 'Attempts while WakaTime recomputes a range.'
+  keystroke_timeout:
+    description: >-
+      Minutes of pause that still count as coding. WakaTime's own profile
+      pages render with 15, while the API falls back to whatever your
+      account is set to, so leaving this unset made published totals
+      disagree with the profile they mirror. Set it to the same value as
+      your WakaTime account setting to make every surface agree.
     required: false
-    default: '3'
+    default: '15'
+
+  retries:
+    description: >-
+      Attempts while WakaTime computes a range. A keystroke timeout it has
+      not computed before answers 202 and needs several seconds.
+    required: false
+    default: '6'
 
   strict:
     description: >-
-      Exit 2 when the data is unavailable. Off by default so a scheduled
-      run does not fail over a brief outage.
+      Exit 2 when an API could not be reached. Off by default so a
+      scheduled run does not fail over a brief outage. Stale WakaTime data
+      fails regardless: nothing was written, and saying otherwise hides a
+      README that has stopped being true.
     required: false
     default: 'false'
 

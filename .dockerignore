@@ -4,11 +4,20 @@
 tests
 htmlcov
 uv.lock
-CONTRIBUTING.md
 CHANGELOG.md
-SECURITY.md
 .python-version
 .pre-commit-config.yaml
+
+# Documentation and its build output. The image runs the tool; it does
+# not serve the site.
+docs
+mkdocs.yml
+site
+
+# Not part of the runtime either.
+examples
+artifacts
+
 **/__pycache__
 **/*.pyc
 .mypy_cache

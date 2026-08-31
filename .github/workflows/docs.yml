@@ -1,0 +1,88 @@
+name: Docs
+
+on:
+  push:
+    branches: [master]
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The theme reads git history to date each page. A shallow
+          # clone leaves it with nothing to read.
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - run: uv sync --locked
+
+      # --strict turns a broken link into a failed build, which is the
+      # only reason this is worth running on a pull request at all.
+      - run: uv run mkdocs build --strict
+
+  publish:
+    name: publish
+    # A pull request stops after the build above.
+    if: github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-latest
+
+    # mike publishes by committing to the gh-pages branch, which is what
+    # GitHub Pages serves. Nothing else here writes to the repository.
+    permissions:
+      contents: write
+
+    # Deploys queue rather than cancel: two runs pushing gh-pages at once
+    # is how a version ends up half-written.
+    concurrency:
+      group: docs-publish
+      cancel-in-progress: false
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - run: uv sync --locked
+
+      # mike reads and rewrites this branch. It may not exist yet on the
+      # very first run, which is fine -- mike creates it.
+      - name: Fetch the docs branch
+        run: git fetch origin gh-pages --depth=1 || true
+
+      - name: Identify the committer
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+      # Unreleased documentation, visible but never the default. This is
+      # what master publishes.
+      - name: Publish dev
+        if: startsWith(github.ref, 'refs/heads/')
+        run: uv run mike deploy --push dev
+
+      # A tag publishes major.minor, so a patch replaces its own minor
+      # rather than adding an entry the version selector has to carry
+      # forever. `latest` follows the newest release and is the default,
+      # which is what the bare site URL redirects to.
+      - name: Publish the release
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          series="${version%.*}"
+          uv run mike deploy --push --update-aliases "$series" latest
+          uv run mike set-default --push latest

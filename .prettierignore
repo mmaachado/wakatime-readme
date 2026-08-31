@@ -3,6 +3,12 @@
 # assertion or YAML written in the same single-quote style. Both have
 # already been damaged by a format-on-save.
 
+# Every Markdown file here carries placeholders as HTML comments, and
+# Prettier puts a blank line before each one. That turns an inline
+# placeholder into its own paragraph, which breaks the one thing this
+# project exists to do. It damaged examples/profile-readme.md that way.
+*.md
+
 # Captured API responses and rendered output. Their exact bytes ARE the
 # assertion in tests/test_blocks.py: a Markdown formatter collapsed the
 # chart's column alignment once, and the parity test went red.
@@ -13,6 +19,17 @@ tests/fixtures/
 # buries a one-line change in a few hundred lines of requoting.
 action.yml
 .github/
+
+# The docs site config. Prettier requotes it and, worse, reformats the
+# `markdown_extensions` mapping, whose entries are keys with empty values
+# and are easy to mangle into something MkDocs rejects.
+mkdocs.yml
+
+# What a consumer copies into their own repository. The YAML here was
+# already requoted to "double" once by a format-on-save, which is exactly
+# the damage the entries above exist to prevent -- it was simply not
+# covered. The Markdown alongside it is caught by the `*.md` rule.
+examples/
 
 # Managed by uv.
 uv.lock

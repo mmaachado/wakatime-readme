@@ -145,9 +145,16 @@ def test_a_file_of_github_metrics_needs_no_wakatime_key(
     )
 
 
-def test_stale_data_keeps_a_scheduled_run_green(
+def test_stale_data_fails_the_run_even_without_strict(
     tmp_path: Path, transport: Install, all_time: Payload, no_sleep: None
 ) -> None:
+    """Exhausted retries are a failure whether or not `strict` was asked.
+
+    This used to exit 0. WakaTime did answer and said it has no final
+    number, so nothing was written and the file kept publishing whatever
+    it already held. Reporting success there is exactly how a README
+    went on advertising a wrong total with every run green.
+    """
     stale = {'data': {**all_time['data'], 'is_up_to_date': False}}
     path = readme(tmp_path, SENTENCE)
     before = path.read_bytes()
@@ -155,23 +162,35 @@ def test_stale_data_keeps_a_scheduled_run_green(
 
     result = run(['--readme', str(path), '--retries', '3'], KEY_ONLY)
 
-    assert result.code == 0
+    assert result.code == 2
+    # Invariant 5 still holds: refusing to write is the point, and the
+    # exit code is what makes the refusal visible.
     assert path.read_bytes() == before
     assert 'warning' in result.err
 
 
-def test_strict_turns_stale_data_into_a_failure(
-    tmp_path: Path, transport: Install, all_time: Payload, no_sleep: None
+def test_an_unreachable_api_stays_green_unless_strict(
+    tmp_path: Path, transport: Install
 ) -> None:
-    stale = {'data': {**all_time['data'], 'is_up_to_date': False}}
+    """A brief outage is not an incident; asking for strictness makes it one.
+
+    The distinction that survives: the API answering "not final yet" is a
+    failure, while not reaching the API at all is the transient case a
+    nightly cron should ride out.
+    """
     path = readme(tmp_path, SENTENCE)
-    transport(ok(stale), ok(stale), ok(stale))
+    before = path.read_bytes()
+    transport(ok(None, 401))
 
-    result = run(
-        ['--readme', str(path), '--retries', '3', '--strict'], KEY_ONLY
-    )
+    result = run(['--readme', str(path)], KEY_ONLY)
 
-    assert result.code == 2
+    assert result.code == 0
+    assert path.read_bytes() == before
+
+    transport(ok(None, 401))
+    strict = run(['--readme', str(path), '--strict'], KEY_ONLY)
+
+    assert strict.code == 2
 
 
 def test_a_workflow_gets_an_annotation_instead_of_plain_text(

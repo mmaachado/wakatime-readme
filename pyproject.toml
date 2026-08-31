@@ -1,7 +1,7 @@
 [project]
 name = 'wakatime-readme'
-version = '1.0.1'
-description = 'dev metrics with Wakatime for your README.md'
+version = '1.1.0'
+description = 'Dev metrics with Wakatime for your README.md'
 readme = 'README.md'
 requires-python = '>=3.11'
 license = 'MIT'
@@ -101,9 +101,15 @@ typecheck = 'mypy src'
 pre_test = 'task lint'
 test = 'pytest -s -x --cov=src -vv'
 post_test = 'coverage html'
+docs = 'mkdocs serve'
+# --strict turns a broken link into a failure, which is the only thing
+# that makes the docs job in CI worth running.
+docs_build = 'mkdocs build --strict'
 
 [dependency-groups]
 dev = [
+  "mike>=2.1.3",
+  "mkdocs-shadcn>=0.12.1",
   "mypy>=2.3.1",
   "pre-commit>=4.6.2",
   "pytest>=9.1.1",

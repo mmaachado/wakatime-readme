@@ -14,6 +14,7 @@ from dataclasses import dataclass
 
 from . import blocks, metrics
 from .blocks import ChartOptions
+from .formatters import is_format
 from .formatters import render as render_value
 from .metrics import Context, MetricError
 
@@ -76,6 +77,29 @@ def _part(parts: list[str], index: int) -> str | None:
     return value or None
 
 
+def _fields(parts: list[str]) -> tuple[str | None, str | None]:
+    """Split the tail of a spec into its argument and its format.
+
+    Two fields are ambiguous on their own: `top_lang:2` names a rank
+    while `total_hours:1f` names a format. Reading the second field as
+    an argument unconditionally left a metric that takes no argument
+    with no way to ask for a format at all, and dropped the request in
+    silence -- `total_hours:1f` rendered 1920 where the author asked for
+    1920.0. A known format name settles it; anything else is an
+    argument, and `metric::format` stays available to be explicit.
+
+    Example:
+        >>> _fields(['total_hours', '1f'])
+        (None, '1f')
+        >>> _fields(['top_lang', '2'])
+        ('2', None)
+    """
+    arg, format_name = _part(parts, 1), _part(parts, 2)
+    if format_name is None and arg is not None and is_format(arg):
+        return None, arg
+    return arg, format_name
+
+
 def find(text: str) -> tuple[Placeholder, ...]:
     """Locate every marker pair, in the order they appear."""
     found = []
@@ -86,12 +110,13 @@ def find(text: str) -> tuple[Placeholder, ...]:
         if not name:
             raise MetricError(f'placeholder has no name: {spec!r}')
         body_start, body_end = match.span('body')
+        arg, format_name = _fields(parts)
         found.append(
             Placeholder(
                 spec=spec,
                 name=name,
-                arg=_part(parts, 1),
-                format_name=_part(parts, 2),
+                arg=arg,
+                format_name=format_name,
                 body=match.group('body'),
                 body_start=body_start,
                 body_end=body_end,

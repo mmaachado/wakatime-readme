@@ -18,11 +18,14 @@ from .blocks import DEFAULT_BLOCKS, ChartOptions
 from .github import BASE_URL as GITHUB_URL
 from .targets import DEFAULT_MESSAGE
 from .wakatime import BASE_URL as WAKATIME_URL
-from .wakatime import DEFAULT_RANGE
+from .wakatime import (
+    DEFAULT_KEYSTROKE_TIMEOUT,
+    DEFAULT_RANGE,
+    DEFAULT_RETRIES,
+)
 
 TRUTHY = frozenset({'1', 'true', 'yes', 'on'})
 DEFAULT_README = 'README.md'
-DEFAULT_RETRIES = 3
 
 
 class ConfigError(ValueError):
@@ -44,6 +47,7 @@ class Settings:
     username: str
     range_name: str
     retries: int
+    keystroke_timeout: int
     strict: bool
     dry_run: bool
     commit_message: str
@@ -128,6 +132,17 @@ def build_parser(env: Mapping[str, str]) -> argparse.ArgumentParser:
     )
     parser.add_argument(
         '--retries', type=int, default=int(_env(env, 'retries', '0') or 0)
+    )
+    parser.add_argument(
+        '--keystroke-timeout',
+        type=int,
+        default=int(
+            _env(env, 'keystroke_timeout', str(DEFAULT_KEYSTROKE_TIMEOUT))
+        ),
+        help=(
+            'minutes of pause that still count as coding; 15 is what '
+            "WakaTime's own profile pages use"
+        ),
     )
     parser.add_argument(
         '--strict', action=boolean, default=_flag(env, 'strict')
@@ -220,6 +235,7 @@ def settings_from(
         username=username,
         range_name=options.range,
         retries=options.retries or DEFAULT_RETRIES,
+        keystroke_timeout=options.keystroke_timeout,
         strict=options.strict,
         dry_run=options.dry_run,
         commit_message=options.message,
