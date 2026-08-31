@@ -122,7 +122,7 @@ in here rather than kept as a release nobody could install.
 - Project scaffolding: packaging metadata, tooling configuration, CI and
   community health files.
 
-[Unreleased]: https://github.com/mmaachado/wakatime-readme/compare/v1.0.2...HEAD
-[1.0.2]: https://github.com/mmaachado/wakatime-readme/compare/v1.0.1...v1.0.2
+[Unreleased]: https://github.com/mmaachado/wakatime-readme/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/mmaachado/wakatime-readme/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/mmaachado/wakatime-readme/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/mmaachado/wakatime-readme/releases/tag/v1.0.0
