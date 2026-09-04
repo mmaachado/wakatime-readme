@@ -1,6 +1,6 @@
 [project]
 name = 'wakatime-readme'
-version = '1.1.0'
+version = '1.1.1'
 description = 'Dev metrics with Wakatime for your README.md'
 readme = 'README.md'
 requires-python = '>=3.11'
