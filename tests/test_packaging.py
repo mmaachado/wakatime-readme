@@ -24,3 +24,23 @@ def test_the_package_version_matches_the_project_version() -> None:
     )
 
     assert wakatime_readme.__version__ == pyproject['project']['version']
+
+
+def test_the_action_metadata_sits_where_the_runner_looks() -> None:
+    """`uses: owner/repo@ref` reads action.yml at the root and nowhere else.
+
+    1.1.0 moved this into `.github/`. The runner found no metadata but a
+    Dockerfile, fell back to a Dockerfile action, and so never read
+    `inputs:` -- which dropped `github_token`'s default, the one input
+    with no fallback in `config.py`. Every consumer's commit went out
+    unauthenticated and every run stayed green.
+    """
+    metadata = ROOT / 'action.yml'
+
+    assert metadata.is_file()
+    # A copy left behind would drift from the one that is actually read.
+    assert not (ROOT / '.github' / 'action.yml').exists()
+
+    text = metadata.read_text(encoding='utf-8')
+    assert 'github_token:' in text
+    assert '${{ github.token }}' in text

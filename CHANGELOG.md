@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-09-04
+
+### Fixed
+
+- The action stopped doing anything at all, without ever failing. `1.1.0` filed
+  `action.yml` under `.github/`, and `uses: owner/repo@ref` resolves that file
+  at the repository root and nowhere else. Finding no metadata but a
+  `Dockerfile`, the runner fell back to treating the repository as a Dockerfile
+  action: it rebuilt the image on every run instead of pulling the published
+  one, and it never read `inputs:` — so no `default:` was applied.
+
+  `github_token` is the only input with no fallback in the tool itself, and its
+  default is the workflow's own token. Without it the commit went out
+  unauthenticated, GitHub answered `401`, and the run reported success. Every
+  `@v1` run between 2026-08-31 and 2026-09-04 was green, wrote nothing and
+  notified no one.
+
+  If you added `github_token: ${{ secrets.GITHUB_TOKEN }}` to work around this,
+  you can drop it again — though leaving it in does no harm. A run on this
+  version has no `Build` step and no `Unexpected input(s)` annotation.
+
+  A test now fails if the file ever leaves the root. Making the `401` itself
+  loud is a separate change and lands in `1.2.0`.
+
 ## [1.1.0] - 2026-08-31
 
 A `1.0.2` was prepared but never tagged or published, so its entries are folded
@@ -122,7 +146,8 @@ in here rather than kept as a release nobody could install.
 - Project scaffolding: packaging metadata, tooling configuration, CI and
   community health files.
 
-[Unreleased]: https://github.com/mmaachado/wakatime-readme/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/mmaachado/wakatime-readme/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/mmaachado/wakatime-readme/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/mmaachado/wakatime-readme/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/mmaachado/wakatime-readme/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/mmaachado/wakatime-readme/releases/tag/v1.0.0

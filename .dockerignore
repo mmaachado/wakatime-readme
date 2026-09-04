@@ -14,9 +14,12 @@ docs
 mkdocs.yml
 site
 
-# Not part of the runtime either.
+# Not part of the runtime either. `action.yml` has to sit at the
+# repository root -- that is the only place the Actions runner looks for
+# it -- so it lands in the build context and has to be excluded by name.
 examples
 artifacts
+action.yml
 
 **/__pycache__
 **/*.pyc
